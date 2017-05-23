@@ -1,60 +1,77 @@
-var json_to_map = function(array, object){
-
-  // var countyObject = addCountyTotalsToCounty(countyTotalsObject)
-  json_to_map_complete(array, object)
-
-function json_to_map_complete(array, object){
-  debugger;
-  var features = array;
-  var purples = ["#dcefd5","#c7e9c0","#a1d99b","#74c476","#41ab5d","#238b45","#005a32", "#032f20"]
+var json_to_map = function(jsonAsArrayElement, colorScale, mapTitle){
 
   if (document.getElementById("loading")){
   document.getElementById("loading").remove()
   }
 
-  var colorScale = function(num){
-      if (num < 30) return purples[0];
-      else if (num > 30 && num <=35) return purples[1]
-      else if (num > 35 && num <=40) return purples[2]
-      else if (num > 40 && num <=45) return purples[3]
-      else if (num > 45 && num <=50) return purples[4]
-      else if (num > 50 && num <=55) return purples[5]
-      else if (num > 55 && num <=60) return purples[6]
-      else if (num > 60 && num <=185) return purples[7]
-  }
-
-  g.append("g")
-       .attr("id", "counties")
-       .selectAll('path')
-   .data(features)
-   .enter().append('path')
-   .attr('d', path)
-  .attr("class", "county-boundary")
-      .on("click", countyclicked)
-   .style('fill', function(d) { return colorScale(Number(d.properties.data_point)); })
-
-
-        function countyclicked(d) {
-          alert(d.properties.ZCTA5CE10);
-        };
-
+//allow for async with the d3.json function
+//note: come up with a better way of dealing with this async.
 d3.json("Counties.geojson", function(error, counties_json) {
+  //In d3_map_setup, we created a variable called g which will house our map
+  //Here, we go county by county, appending the shapefile to the g element on the DOM
+  var tooltip = d3.select('svg')
+    .append("div")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .style("background", "#000")
+    .text("a simple tooltip");
 
   g.append("g")
-      .attr("id", "states")
-    .selectAll("path")
-    .data(counties_json.features)
-    .enter().append("path")
-  .attr("d", path)
-  .attr("class", "state")
-      .on("click", clicked);
+    .attr("id", "counties")
+    .selectAll('path')
+    .data(jsonAsArrayElement)
+    .enter().append('path')
+    .attr('d', path)
+    .attr("class", "state")
+    // .on("click", countyclicked)
+    //with the style method, we give it its gradient styling, taking advantage of the
+    //colorScale passed in.
+    .style('fill', function(d) { return colorScale(Number(d.properties.dataPoint)); })
+                .on("mouseover", function(d) {
 
-  g.append("path")
-      .datum(topojson.mesh(counties_json, counties_json.features))
-      .attr("id", "state-borders")
-      .attr("d", path);
+                    // svg.append("svg").append("text")
+                    //     .attr("id", "tooltip")
+                    //     .attr("x", xPosition)
+                    //     .attr("y", yPosition)
+                    //     .attr("text-anchor", "middle")
+                    //     .attr("font-family", "sans-serif")
+                    //     .attr("font-size", "19px")
+                    //     .attr("font-weight", "bold")
+                    //     // .attr("fill", "black")
+                    //     .text(d.properties.dataPoint);
+
+
+                    d3.select("#tooltip3").append("div").attr("id", "tooltip2");
+                    document.getElementById('tooltip2').innerHTML = "<p>" + d.properties.NAME + " County <br><br>" + d.properties.dataPoint + " " + mapTitle + "" +"</p>"
+                    var xPosition = d3.mouse(this)[0];
+                    var yPosition = d3.mouse(this)[1];
+
+                    $('#tooltip2').css({'top':yPosition,
+                      'left':xPosition,
+                      'visibility': 'visible',
+                      })
+                    .fadeIn('slow');
+
+                    d3.select(this)
+                    .style("fill", "#fff");
+                }).on("mouseout", function(d) {
+                    $('#tooltip2').remove()
+                                    // d3.select("#tooltip").remove();
+
+                                    d3.select(this)
+                                    .transition()
+                                    .duration(250)
+                                    .style("fill", function(d) {
+                                    var dataPoint = d.properties.dataPoint;
+
+                                    if (dataPoint) {
+                                        return colorScale(Number(d.properties.dataPoint));
+                                    } else {
+                                        return "#ddd";
+                                    }
+                                });
+                              });
+
 });
-
-};
-
-};
+}
