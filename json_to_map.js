@@ -1,7 +1,10 @@
-var json_to_map = function(array, countyTotalsObject, addCountyTotalsToCounty){
+var json_to_map = function(array, object){
 
-  var countyObject = addCountyTotalsToCounty(countyTotalsObject)
+  // var countyObject = addCountyTotalsToCounty(countyTotalsObject)
+  json_to_map_complete(array, object)
 
+function json_to_map_complete(array, object){
+  debugger;
   var features = array;
   var purples = ["#dcefd5","#c7e9c0","#a1d99b","#74c476","#41ab5d","#238b45","#005a32", "#032f20"]
 
@@ -51,5 +54,7 @@ d3.json("Counties.geojson", function(error, counties_json) {
       .attr("id", "state-borders")
       .attr("d", path);
 });
+
+};
 
 };

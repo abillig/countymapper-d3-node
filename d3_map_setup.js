@@ -9,7 +9,6 @@ var projection = d3.geo.mercator()
 
 var zoom = d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoomed);
 
-
 function zoomed() {
     svg.attr("transform",
         "translate(" + zoom.translate() + ")" +
@@ -20,18 +19,13 @@ function zoomed() {
 var path = d3.geo.path()
     .projection(projection);
 
-var svg = d3.select("body").append("svg")
-    .attr("width", width)
-    .attr("height", height)
+var svg = d3.select("#embed").append("svg")
+//this makes it responsive
+.attr('viewBox', function(){if(window.innerWidth < 1000) return '0 0 1250 500'
+      else return '0 0 1250 500';} )
     .append("g")
     .call(zoom);
-    // .append("g");
 
 
-    svg.append("rect")
-        .attr("class", "background")
-        .attr("width", width)
-        .attr("height", height)
-        .on("click", clicked);
-
-    var g = svg.append("g");
+var g = svg.append("g")
+.style('position', 'absolute');

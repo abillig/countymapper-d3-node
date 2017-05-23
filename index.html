@@ -5,43 +5,49 @@
     <title></title>
     <link rel="stylesheet" type="text/css" href="d3_json_styles.css" />
     <meta http-equiv="Cache-Control" content="no-store" />
-
-
     <script src="http://d3js.org/d3.v3.min.js"></script>
- <script src="http://d3js.org/topojson.v1.min.js"></script>
-<script src='https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/spin.min.js'></script>
- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
+    <script src="http://d3js.org/topojson.v1.min.js"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.0.1/spin.min.js'></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.js"></script>
   </head>
   <body>
-    <button id="zoom_in">+</button>
-  <button id="zoom_out">-</button>
-    <input type="file" id="fileinput" />
-    <div id="the_map"><img id="loading" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"></div>
+    <div id="embed">
+      <h1>Alright Fine </h1>
+      <button id="zoom_in">+</button>
+      <button id="zoom_out">-</button>
+      <div id="the_map"><img id="loading" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif"></div>
+      <div id="legend"></div>
+      <div id="tooltip3"></div>
+    </div>
+
+    <script src="csvTransformer.js"></script>
+    <script src="colorScaleBuilder.js"></script>
+    <script src="legendBuilder.js"></script>
+
     <script src="zooming.js"></script>
     <script src="d3_map_setup.js"></script>
-
-    <script src="alter_and_map_json.js"></script>
+    <script src="loadJSON.js"></script>
     <script src="json_to_map.js"></script>
-
+    <script src="alterAndMapJson.js"></script>
     <script type="text/javascript">
-      function readSingleFile(evt) {
-        //Retrieve the first (and only!) File from the FileList object
-        var f = evt.target.files[0];
-        if (f) {
-          var r = new FileReader();
-          r.onload = function(e) {
-    	      var contents = e.target.result;
-            var contentsArray = contents.split(/\r?\n|\r/);
-            alter_and_map_json(contentsArray)
+    var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function() {
+          if (xhr.readyState == XMLHttpRequest.DONE) {
+            // debugger;
+            console.log(xhr.responseText.countyData)
+              var countyObject = JSON.parse(xhr.responseText).countyData;
+              var title = JSON.parse(xhr.responseText).title;
+
+              alterAndMapJson(countyObject, 'red', title)
+
+
           }
-          r.readAsText(f);
-        } else {
-          alert("Failed to load file");
-        }
       }
+      xhr.open('GET', 'https://countymapper.herokuapp.com/map/'+window.location.href.split("?")[1], true);
+      xhr.send(null);
 
-      document.getElementById('fileinput').addEventListener('change', readSingleFile, false);
+
+      // document.getElementById('fileinput').addEventListener('change', csvTransformer, false);
     </script>
-
   </body>
 </html>
